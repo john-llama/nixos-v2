@@ -5,7 +5,8 @@
 
   services = {
     logind.settings.Login = {
-      HandlePowerKey = "suspend-then-hibernate";
+      # Hyprland binds XF86PowerOff to the Quickshell power menu instead.
+      HandlePowerKey = "ignore";
       HandleLidSwitch = "ignore";
       HandleLidSwitchExternalPower = "ignore";
       HandleLidSwitchDocked = "ignore";

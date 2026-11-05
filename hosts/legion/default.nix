@@ -177,6 +177,9 @@ in
     orca-slicer # 3D printing slicer
   ];
 
+  # NVIDIA rejects WebKitGTK's DMA-BUF buffers, crashing WebKit apps (e.g. orca-slicer) with Wayland "Error 71".
+  environment.sessionVariables.WEBKIT_DISABLE_DMABUF_RENDERER = "1";
+
   networking = {
     hostName = "legion";
 

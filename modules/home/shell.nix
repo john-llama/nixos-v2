@@ -25,6 +25,8 @@
       functions = {
         rb = ''
           command pkexec --disable-internal-agent /run/current-system/sw/bin/nixos-rebuild switch --flake "$HOME/.src/nixos#"(hostname) --option warn-dirty false $argv; or return $status
+          set -l generation (string match -r '\d+' (readlink /nix/var/nix/profiles/system))
+          echo "Activated generation $generation (NixOS "(cat /run/current-system/nixos-version)")"
         '';
 
         sw = ''

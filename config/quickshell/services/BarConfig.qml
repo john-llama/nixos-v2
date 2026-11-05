@@ -11,9 +11,8 @@ pragma Singleton
 // Items:
 //   workspaces    workspace switcher and taskbar
 //   minimised     minimised-window count
-//   quickToggles  caffeine, do-not-disturb, night light and timer toggles
-//   clock         clock (click: clock panel, right-click: timer panel)
-//   timer         running-timer countdown
+//   quickToggles  caffeine, do-not-disturb and night light toggles
+//   clock         clock (click: clock and calendar panel)
 //   tray          system tray
 //   bluetooth, audio, battery, network
 import QtQuick
@@ -23,7 +22,7 @@ QtObject {
     property string position: "top"
 
     property var start: ["workspaces", "minimised"]
-    property var center: ["quickToggles", "clock", "timer"]
+    property var center: ["quickToggles", "clock"]
     property var end: ["tray", "bluetooth", "audio", "battery", "network"]
 
     // The centre item that stays fixed in the middle of the bar; items before it

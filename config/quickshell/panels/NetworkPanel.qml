@@ -250,11 +250,6 @@ Item {
         sequences: ["Delete"]
         onActivated: root.forgetSelectedNetwork()
     }
-    PanelShortcut {
-        enabled: root.opened && root.passwordSsid === ""
-        sequences: ["Space"]
-        onActivated: NetworkService.toggleWifi()
-    }
 
     Button {
         id: label

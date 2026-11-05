@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 
 // Application launcher drawer, opened from the 4-square bar button or Super+Space.
+// With `mode: "power"` it is the power menu instead, opened by the power button.
 import QtQuick
 import Quickshell
 import "../components/panels"
@@ -12,7 +13,12 @@ Item {
 
     readonly property bool opened: PanelService.activePanel === root
     readonly property bool requiresKeyboardFocus: true
-    readonly property bool isLauncher: true
+    // "apps" lists applications; "power" lists session actions (power menu).
+    property string mode: "apps"
+    readonly property bool isPower: root.mode === "power"
+    readonly property bool isLauncher: !root.isPower
+    readonly property var sourceEntries: root.isPower
+        ? LauncherService.powerEntries : LauncherService.entries
 
     property int currentIndex: 0
     property string query: ""
@@ -28,10 +34,10 @@ Item {
     readonly property var results: {
         const tokens = root.query.toLowerCase().split(" ").filter(token => token !== "");
         if (tokens.length === 0) {
-            return LauncherService.entries;
+            return root.sourceEntries;
         }
         const matches = [];
-        for (const item of LauncherService.entries) {
+        for (const item of root.sourceEntries) {
             let tier = 0;
             for (const token of tokens) {
                 const tokenTier = LauncherService.matchTier(item, token);
@@ -46,7 +52,7 @@ Item {
         }
         const found = matches.sort((a, b) => a.tier - b.tier
             || a.item.entry.name.localeCompare(b.item.entry.name)).map(match => match.item);
-        return found.length > 0 || LauncherService.entries.length === 0
+        return found.length > 0 || root.isPower || LauncherService.entries.length === 0
             ? found : LauncherService.fallbackResults(root.query);
     }
 
@@ -54,7 +60,8 @@ Item {
 
     // --- interaction ---
     function itemLoading(item: var): bool {
-        return !!item && !item.isFallback && LauncherService.isLaunching(item.entry.id);
+        return !!item && !item.isFallback && !item.isPower
+            && LauncherService.isLaunching(item.entry.id);
     }
 
     function moveSelection(offset: int): void {
@@ -77,7 +84,9 @@ Item {
     function activate(item: var): void {
         if (!item || root.itemLoading(item))
             return;
-        if (item.isFallback)
+        if (item.isPower)
+            Quickshell.execDetached(item.command);
+        else if (item.isFallback)
             LauncherService.launchDetached(item.command, "");
         else
             LauncherService.launch(item.entry);
@@ -151,9 +160,11 @@ Item {
         centeredVertically: true
         contentMargins: 0
         contentSpacing: 0
-        panelWidth: 420
-        // Search plus exactly nine application rows (64px rows, 4px spacing).
-        panelHeight: Math.min(16 + searchBox.height + 12 + 608 + 16,
+        panelWidth: root.isPower ? 350 : 420
+        // Search plus exactly nine application rows, or every power action
+        // (64px rows, 4px spacing).
+        readonly property int rowCount: root.isPower ? LauncherService.powerEntries.length : 9
+        panelHeight: Math.min(16 + searchBox.height + 12 + panel.rowCount * 68 - 4 + 16,
             (panel.screen?.height ?? 800)
             - PanelService.panelBarInset - PanelService.panelGap * 2)
 
@@ -204,7 +215,7 @@ Item {
                         anchors.verticalCenter: parent.verticalCenter
                         visible: root.query === ""
                         x: 2
-                        text: "Search applications"
+                        text: "Search items"
                         color: Theme.textSecondary
                         size: 15
                     }
@@ -250,6 +261,7 @@ Item {
                             anchors { left: parent.left; leftMargin: 28; verticalCenter: parent.verticalCenter }
                             width: 32
                             height: 32
+                            visible: !row.modelData.entry.glyph
                             opacity: row.rowLaunching ? 0.35 : 1
                             source: row.modelData.entry.icon
                                 ? Quickshell.iconPath(row.modelData.entry.icon, true) : ""
@@ -257,6 +269,13 @@ Item {
                             sourceSize.height: 64
                             asynchronous: true
                             smooth: true
+                        }
+
+                        ShellText {
+                            anchors.centerIn: rowIcon
+                            visible: !!row.modelData.entry.glyph
+                            text: row.modelData.entry.glyph ?? ""
+                            size: 22
                         }
 
                         Spinner {

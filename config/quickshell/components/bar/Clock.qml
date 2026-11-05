@@ -1,4 +1,4 @@
-// Compact bar clock with a full date-and-time panel.
+// Compact bar clock with a panel for the time and calendar.
 import QtQuick
 import Quickshell
 import "../primitives"
@@ -10,8 +10,6 @@ Item {
 
     readonly property bool opened: PanelService.activePanel === root
     readonly property bool requiresKeyboardFocus: true
-    // Hosted by the bar so keybinds reach it whether or not the clock is shown.
-    property var timerPanel: null
 
     implicitWidth: label.implicitWidth + PanelService.barItemPadding * 2
     implicitHeight: PanelService.barItemHeight
@@ -47,14 +45,8 @@ Item {
         id: mouseArea
         anchors.fill: parent
         hoverEnabled: true
-        acceptedButtons: Qt.LeftButton | Qt.RightButton
         cursorShape: Qt.PointingHandCursor
-        onClicked: mouse => {
-            if (mouse.button === Qt.RightButton)
-                PanelService.toggle(root.timerPanel);
-            else
-                PanelService.toggle(root);
-        }
+        onClicked: PanelService.toggle(root)
     }
 
     ClockPanel {

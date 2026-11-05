@@ -7,7 +7,6 @@ import "../../services"
 Item {
     id: root
 
-    property var timerPanel: null
     property var nightLightPanel: null
     // This bar's monitor, which shows the recording indicator while captured.
     property string screenName: ""
@@ -79,19 +78,6 @@ Item {
                 active: NightLightService.active
                 inactiveColor: Theme.textMuted
                 onClicked: PanelService.toggle(root.nightLightPanel)
-            }
-        }
-
-        // The countdown itself shows on the clock's right.
-        QuickToggleSlot {
-            gapBefore: !root.mirrored
-            shown: TimerService.running || root.expanded
-
-            QuickToggleButton {
-                icon: "󱎫"
-                active: TimerService.running
-                inactiveColor: Theme.textMuted
-                onClicked: PanelService.toggle(root.timerPanel)
             }
         }
 

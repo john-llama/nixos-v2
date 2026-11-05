@@ -96,11 +96,6 @@ Item {
         sequences: ["Return", "Enter"]
         onActivated: root.activateSelectedDevice()
     }
-    PanelShortcut {
-        enabled: root.opened
-        sequences: ["Space"]
-        onActivated: AudioService.toggleOutputMute()
-    }
     PwNodePeakMonitor {
         id: inputPeak
         node: AudioService.input

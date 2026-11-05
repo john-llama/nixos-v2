@@ -15,8 +15,8 @@ PanelWindow {
     // Panels that are bar items register themselves as they are created.
     readonly property var panelEntries: [
         ["launcher", launcher],
+        ["power", powerMenu],
         ["nightlight", nightLight],
-        ["timer", timer],
         ["monitor", monitor]
     ]
 
@@ -139,9 +139,9 @@ PanelWindow {
     // Hosts for panels opened by keybind or from other items; the drawers
     // position themselves, so these take no room.
     LauncherPanel { id: launcher }
+    LauncherPanel { id: powerMenu; mode: "power" }
     MonitorPanel { id: monitor }
     NightLightTogglePanel { id: nightLight }
-    TimerTogglePanel { id: timer }
 
     Row {
         anchors {
@@ -239,7 +239,6 @@ PanelWindow {
             roleValue: "quickToggles"
             QuickToggles {
                 nightLightPanel: nightLight
-                timerPanel: timer
                 screenName: bar.screen?.name ?? ""
                 // After the clock, the toggles grow away from it towards the end.
                 mirrored: bar.neighbours("quickToggles").before === "clock"
@@ -250,14 +249,8 @@ PanelWindow {
             roleValue: "clock"
             Clock {
                 id: clockItem
-                timerPanel: timer
                 PanelRegistration { name: "clock"; panel: clockItem }
             }
-        }
-
-        DelegateChoice {
-            roleValue: "timer"
-            TimerBadge { panelTarget: timer }
         }
 
         DelegateChoice {

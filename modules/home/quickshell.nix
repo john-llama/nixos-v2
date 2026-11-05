@@ -35,7 +35,7 @@ in
     # Pass the system time zone to Quickshell (also set on its service).
     sessionVariables.TZDIR = "/etc/zoneinfo";
 
-    # Panel tools and timer sounds. pw-play comes from the system PipeWire package.
+    # Panel tools.
     packages = with pkgs; [
       quickshell
       gawk
@@ -43,8 +43,6 @@ in
       iputils
       iw
       jq
-      libnotify
-      sound-theme-freedesktop
     ];
 
     file.".config/quickshell".source =

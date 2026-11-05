@@ -68,6 +68,30 @@ Item {
         return -1;
     }
 
+    // Session actions for the power menu, the launcher opened in "power" mode
+    // (power button). Searched like applications; glyphs stand in for icons.
+    readonly property var powerEntries: [
+        { name: "Lock", glyph: "󰌾", comment: "lock screen",
+            command: ["qs", "ipc", "call", "lock", "animate"] },
+        { name: "Sleep", glyph: "󰤄", comment: "suspend",
+            command: ["systemctl", "suspend-then-hibernate"] },
+        { name: "Hibernate", glyph: "󰒲", comment: "",
+            command: ["systemctl", "hibernate"] },
+        { name: "Log out", glyph: "󰍃", comment: "logout exit session",
+            command: ["uwsm", "stop"] },
+        { name: "Restart", glyph: "󰜉", comment: "reboot",
+            command: ["systemctl", "reboot"] },
+        { name: "Shut down", glyph: "󰐥", comment: "power off poweroff",
+            command: ["systemctl", "poweroff"] }
+    ].map(action => ({
+        isPower: true,
+        entry: { name: action.name, glyph: action.glyph },
+        name: action.name.toLowerCase(),
+        categories: "",
+        description: action.comment,
+        command: action.command
+    }))
+
     function fallbackResults(term: string): var {
         return [
             {

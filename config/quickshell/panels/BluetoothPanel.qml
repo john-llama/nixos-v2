@@ -131,11 +131,6 @@ Item {
     }
     PanelShortcut {
         enabled: root.opened
-        sequences: ["Space"]
-        onActivated: BluetoothService.toggle()
-    }
-    PanelShortcut {
-        enabled: root.opened
         sequences: ["Delete"]
         onActivated: root.forgetSelectedDevice()
     }
