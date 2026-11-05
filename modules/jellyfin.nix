@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }:
 
@@ -8,6 +9,47 @@
 let
   cfg = config.jellyfin;
   group = config.users.users.${cfg.user}.group;
+  # Jellyfin's default HTTP port; the NixOS module doesn't expose it.
+  url = "http://localhost:8096";
+
+  # Starts the server if needed, waits for its web UI, then opens it.
+  openJellyfin = pkgs.writeShellApplication {
+    name = "jellyfin-open";
+    runtimeInputs = [
+      pkgs.systemd
+      pkgs.curl
+      pkgs.libnotify
+      pkgs.xdg-utils
+    ];
+    text = ''
+      # Allowed without a password prompt by the polkit rule below.
+      systemctl start jellyfin.service
+
+      for _ in $(seq 1 60); do
+        if curl -fsS -o /dev/null "${url}/health"; then
+          exec xdg-open "${url}"
+        fi
+        sleep 0.5
+      done
+      notify-send --app-name=Jellyfin "Jellyfin didn't start" "Check: journalctl -u jellyfin"
+      exit 1
+    '';
+  };
+
+  # X-Windowless: it opens a browser tab rather than its own window, so the
+  # Quickshell launcher shows no launching spinner for it.
+  desktopItem = pkgs.makeDesktopItem {
+    name = "jellyfin";
+    desktopName = "Jellyfin";
+    comment = "Start the media server and open its web interface";
+    exec = "jellyfin-open";
+    icon = "${pkgs.jellyfin-web}/share/jellyfin-web/favicons/touchicon512.png";
+    categories = [
+      "AudioVideo"
+      "Video"
+      "X-Windowless"
+    ];
+  };
 in
 {
   options.jellyfin = {
@@ -21,6 +63,11 @@ in
       default = "${config.users.users.${cfg.user}.home}/Media";
       defaultText = lib.literalExpression ''"''${home}/Media"'';
       description = "Root folder holding one subfolder per Jellyfin library.";
+    };
+    autoStart = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = "Start Jellyfin at boot; otherwise its desktop entry starts it on demand.";
     };
     openFirewall = lib.mkOption {
       type = lib.types.bool;
@@ -57,6 +104,23 @@ in
         hardwareEncodingCodecs.hevc = true;
       };
     };
+
+    # The NixOS module starts it at boot; without autoStart it waits for the desktop entry.
+    systemd.services.jellyfin.wantedBy = lib.mkIf (!cfg.autoStart) (lib.mkForce [ ]);
+
+    security.polkit.extraConfig = ''
+      polkit.addRule(function(action, subject) {
+        if (action.id == "org.freedesktop.systemd1.manage-units" &&
+            subject.user == "${cfg.user}" &&
+            action.lookup("unit") == "jellyfin.service")
+          return polkit.Result.YES;
+      });
+    '';
+
+    users.users.${cfg.user}.packages = [
+      openJellyfin
+      desktopItem
+    ];
 
     systemd.services.jellyfin.serviceConfig = {
       # NVENC also needs the control and memory devices next to /dev/nvidia0.

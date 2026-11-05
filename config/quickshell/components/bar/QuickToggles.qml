@@ -95,6 +95,18 @@ Item {
             }
         }
 
+        // A screenshot just taken; clicking opens it in the editor.
+        QuickToggleSlot {
+            gapBefore: !root.mirrored
+            shown: ScreenshotService.recent
+
+            QuickToggleButton {
+                icon: "󰹑"
+                active: true
+                onClicked: ScreenshotService.edit()
+            }
+        }
+
         // Recording or screen sharing of this monitor, from any app. Clicking
         // stops a screen-record recording; other apps' shares end in the app.
         QuickToggleSlot {

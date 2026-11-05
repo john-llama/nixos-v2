@@ -13,8 +13,8 @@ Item {
     readonly property date today: calendarClock.date
     readonly property int firstDayOffset: {
         const first = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth(), 1);
-        // Keep the week Monday-first, matching the shell's day-month date format.
-        return (first.getDay() + 6) % 7;
+        // Sunday-first week; getDay() already counts from Sunday.
+        return first.getDay();
     }
 
     implicitHeight: calendarColumn.implicitHeight
@@ -110,7 +110,7 @@ Item {
             height: 18
 
             Repeater {
-                model: ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
+                model: ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
 
                 ShellText {
                     required property string modelData

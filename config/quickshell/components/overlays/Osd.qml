@@ -33,8 +33,6 @@ Scope {
     readonly property color displayFill: dictationView
         ? (AudioService.inputMuted ? Theme.base04 : Theme.base05) : fillColor
 
-    // The built-in mic's wake-up DC offset is avoided by keeping it from
-    // suspending (hosts/legion/default.nix), so the raw peak is shown as-is.
     PwNodePeakMonitor {
         id: inputPeak
         node: AudioService.input

@@ -33,7 +33,6 @@ in
   windows.user = user;
 
   sqlServer.user = user;
-  sqlServer.autoStart = true;
 
   jellyfin.user = user;
 
@@ -123,18 +122,6 @@ in
     steam.enable = true;
   };
 
-  # The built-in mic's codec emits a full-scale DC offset for about a second
-  # each time it wakes from suspend, which reads as maximum level on the
-  # shell's mic meters. Keeping it running means it only settles once.
-  services.pipewire.wireplumber.extraConfig."51-built-in-mic-no-suspend" = {
-    "monitor.alsa.rules" = [
-      {
-        matches = [ { "node.name" = "alsa_input.pci-0000_00_1f.3.analog-stereo"; } ];
-        actions.update-props."session.suspend-timeout-seconds" = 0;
-      }
-    ];
-  };
-
   security = {
     # Unlock the login keyring with the Quickshell session password.
     pam.services.quickshell.enableGnomeKeyring = true;
@@ -187,6 +174,7 @@ in
     postman # api managment tool
     dotnet-sdk_10 # .NET 10 SDK
     vlc # video player
+    orca-slicer # 3D printing slicer
   ];
 
   networking = {

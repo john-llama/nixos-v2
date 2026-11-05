@@ -104,6 +104,52 @@ let
       echo "Restored $db. Connect with Server=localhost,${toString cfg.port};Database=$db;User Id=sa;TrustServerCertificate=True"
     '';
   };
+
+  # Starts the container if needed and notifies once it accepts connections.
+  start = pkgs.writeShellApplication {
+    name = "mssql-start";
+    runtimeInputs = with pkgs; [
+      libnotify
+      sqlcmd
+      systemd
+    ];
+    text = ''
+      export SQLCMDPASSWORD=${lib.escapeShellArg cfg.password}
+      ready() { sqlcmd -S "127.0.0.1,${toString cfg.port}" -U sa -C -b -Q 'SELECT 1' >/dev/null 2>&1; }
+
+      if systemctl is-active --quiet ${unit} && ready; then
+        notify-send --app-name='SQL Server' 'SQL Server is already running' "localhost,${toString cfg.port}"
+        exit 0
+      fi
+
+      # Allowed without a password prompt by the polkit rule below.
+      systemctl start ${unit}
+      notify-send --app-name='SQL Server' 'Starting SQL Server...'
+      # The first start pulls the image, so allow a slow download.
+      deadline=$((SECONDS + 3600))
+      until ready; do
+        if (( SECONDS >= deadline )) || ! systemctl is-active --quiet ${unit}; then
+          notify-send --app-name='SQL Server' "SQL Server didn't start" 'Check: journalctl -u ${unit}'
+          exit 1
+        fi
+        sleep 3
+      done
+      notify-send --app-name='SQL Server' 'SQL Server is ready' "localhost,${toString cfg.port}"
+    '';
+  };
+
+  # X-Windowless: it only starts a service, so the Quickshell launcher shows no launching spinner for it.
+  desktopItem = pkgs.makeDesktopItem {
+    name = "mssql";
+    desktopName = "SQL Server";
+    comment = "Start the local SQL Server container";
+    exec = "mssql-start";
+    icon = "network-server";
+    categories = [
+      "Development"
+      "X-Windowless"
+    ];
+  };
 in
 {
   options.sqlServer = {
@@ -129,6 +175,7 @@ in
     autoStart = lib.mkOption {
       type = lib.types.bool;
       default = false;
+      description = "Start SQL Server at boot; otherwise its desktop entry starts it on demand.";
     };
     dataPath = lib.mkOption {
       type = lib.types.path;
@@ -177,6 +224,8 @@ in
 
     users.users.${cfg.user}.packages = [
       restore
+      start
+      desktopItem
       pkgs.sqlcmd
     ];
   };

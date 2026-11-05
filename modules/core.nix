@@ -153,19 +153,20 @@ in
       };
 
       xdg.portal = {
-        # Hyprland's module adds GTK automatically, forcing exact backends for the terminal file picker.
+        # Hyprland's module adds GTK automatically, forcing exact backends so Nautilus owns the file picker.
         extraPortals = lib.mkForce (
           with pkgs;
           [
             xdg-desktop-portal-hyprland
-            xdg-desktop-portal-termfilechooser
+            # Nautilus (47+) serves the GNOME portal's file chooser.
+            xdg-desktop-portal-gnome
             # GTK4 needs the Settings portal for live appearance changes on Wayland.
             xdg-desktop-portal-gtk
           ]
         );
         config.hyprland = {
           default = [ "hyprland" ];
-          "org.freedesktop.impl.portal.FileChooser" = [ "termfilechooser" ];
+          "org.freedesktop.impl.portal.FileChooser" = [ "gnome" ];
           # The GTK backend stays pinned to this interface so it cannot take over the file picker.
           "org.freedesktop.impl.portal.Settings" = [ "gtk" ];
         };

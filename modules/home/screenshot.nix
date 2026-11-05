@@ -15,7 +15,7 @@ let
       --early-exit all
   '';
 
-  # Capture a region, copy it, and offer to edit or open it.
+  # Capture a region, copy it, and offer to edit it from the bar.
   screenshot = pkgs.writeShellScriptBin "screenshot" ''
     set -euo pipefail
     export PATH=${
@@ -61,7 +61,13 @@ let
 
     wl-copy --type image/png <"$file"
 
-    # Clicking the notification edits; Edit and Open also show as buttons.
+    # The bar offers it for editing for a few seconds; without the shell running,
+    # fall back to a notification. Clicking it edits; Edit and Open show as buttons.
+    # `qs ipc call` succeeds even when the target is missing, so check first.
+    if qs ipc show 2>/dev/null | grep -q '^target screenshot$'; then
+      qs ipc call screenshot taken "$file"
+      exit 0
+    fi
     action=$(notify-send --app-name=Screenshot -t 8000 \
       --action=default=Edit --action=edit=Edit --action=open=Open \
       "Screenshot saved" "$(basename "$file")")

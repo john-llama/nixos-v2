@@ -265,7 +265,6 @@ Scope {
                 notification.dismiss();
         }
 
-        readonly property bool critical: notification.urgency === NotificationUrgency.Critical
         readonly property double arrivedAt: Date.now()
         // Buttons that add nothing to a card: Chromium-based senders (Slack, Chrome, Electron apps) attach
         // "settings" to every notification, which only opens the browser's notification settings, and
@@ -276,7 +275,7 @@ Scope {
             .filter(action => action.text !== ""
                 && !hiddenActions.includes(String(action.identifier).toLowerCase())
                 && !hiddenActions.includes(String(action.text).trim().toLowerCase()))
-        // Fraction of the timeout still left; drives the countdown bar.
+        // Fraction of the timeout still left; the card closes when it reaches 0, pausing while hovered.
         property real remaining: 1
 
         // Browsers send web page notifications as themselves, naming the page's
@@ -539,20 +538,6 @@ Scope {
                         }
                     }
                 }
-            }
-        }
-
-        // Countdown to auto-dismiss over a faint full-width track; pauses while hovered.
-        Rectangle {
-            anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
-            height: 2
-            visible: card.timeoutMs > 0
-            color: Utils.alpha(Theme.base05, 0.08)
-
-            Rectangle {
-                anchors { left: parent.left; top: parent.top; bottom: parent.bottom }
-                width: parent.width * card.remaining
-                color: card.critical ? Theme.base08 : Utils.alpha(Theme.base05, 0.75)
             }
         }
     }

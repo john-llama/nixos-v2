@@ -143,7 +143,8 @@ end
 -- Floating application windows.
 local floating_windows = {
 	{ class = "xdg-desktop-portal-gtk", center = true },
-	{ title = "termfilechooser", center = true },
+	-- File picker: the GNOME portal serves it from Nautilus as a modal window.
+	{ name = "file-picker", class = "^org.gnome.Nautilus$", modal = true, center = true },
 	{ class = "1password", center = true },
 	{ class = "^com.gabm.satty$", center = true }, -- screenshot annotator (StartupWMClass)
 	{ name = "gnome-calculator", class = "^org.gnome.Calculator$", size = { 360, 616 } },
@@ -153,7 +154,7 @@ local floating_windows = {
 for _, window in ipairs(floating_windows) do
 	hl.window_rule({
 		name = window.name,
-		match = window.title and { title = window.title } or { class = window.class },
+		match = window.title and { title = window.title } or { class = window.class, modal = window.modal },
 		float = true,
 		center = window.center,
 		size = window.size or { 1300, 800 },
@@ -614,8 +615,8 @@ end, { locked = true })
 
 bind("SUPER + S", "Toggle the terminal workspace", hl.dsp.workspace.toggle_special("terminal"))
 bind("SUPER + CTRL + SHIFT + S", "Move focused window to terminal workspace", hl.dsp.window.move({ workspace = "special:terminal" }))
-bind("SUPER + E", "Open Yazi file manager", hl.dsp.exec_cmd("launch-terminal-cwd yazi"))
-bind("SUPER + SHIFT + E", "Open Nautilus file manager", hl.dsp.exec_cmd("nautilus"))
+bind("SUPER + E", "Open Nautilus file manager", hl.dsp.exec_cmd("nautilus"))
+bind("SUPER + SHIFT + E", "Open Yazi file manager", hl.dsp.exec_cmd("launch-terminal-cwd yazi"))
 bind("SUPER + SHIFT + C", "Open VS Code in the focused terminal's directory", hl.dsp.exec_cmd("sh -c 'code \"$(terminal-cwd)\"'"))
 bind("SUPER + Return", "Open terminal in current directory", open_terminal)
 bind("SUPER + CTRL + Return", "Open a floating terminal", open_floating_terminal)
