@@ -16,7 +16,7 @@ Item {
 
     SystemClock {
         id: clock
-        precision: SystemClock.Minutes
+        precision: SystemClock.Seconds
     }
 
     Rectangle {
@@ -37,7 +37,7 @@ Item {
 
         anchors.centerIn: parent
         anchors.verticalCenterOffset: -1
-        text: Qt.formatDateTime(clock.date, "dddd HH:mm")
+        text: Qt.formatDateTime(clock.date, "dddd HH:mm:ss")
         font.pixelSize: 13
     }
 

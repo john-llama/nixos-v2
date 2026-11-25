@@ -26,6 +26,7 @@ in
     ../../modules/windows.nix
     ../../modules/sql-server.nix
     ../../modules/jellyfin.nix
+    ../../modules/react-native.nix
   ];
 
   gpu = "nvidia";
@@ -35,6 +36,8 @@ in
   sqlServer.user = user;
 
   jellyfin.user = user;
+
+  reactNative.user = user;
 
   wayland-desktop = {
     # Quickshell locks the session immediately after autologin.
@@ -175,6 +178,8 @@ in
     dotnet-sdk_10 # .NET 10 SDK
     vlc # video player
     orca-slicer # 3D printing slicer
+    zapzap # whatsapp client
+    angryipscanner # network scanner
   ];
 
   # NVIDIA rejects WebKitGTK's DMA-BUF buffers, crashing WebKit apps (e.g. orca-slicer) with Wayland "Error 71".

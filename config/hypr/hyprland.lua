@@ -56,6 +56,8 @@ hl.config({
 		gaps_out = GAPS_OUT,
 		border_size = 0,
 		layout = "dwindle",
+		-- Modal dialogs (e.g. Android Studio's) must not lock input out of their parent windows.
+		modal_parent_blocking = false,
 	},
 	decoration = {
 		rounding = 0,
@@ -218,7 +220,7 @@ local configured_monitors = {
 		mode = "1920x1080@60",
 		position = "0x0",
 		scale = 1,
-		workspaces = { 4, 5, 6, 7, 8, 9, 10 },
+		workspaces = { 1, 2, 3 },
 		-- Used instead when this is the only connected output.
 		laptop_only_workspaces = { 1, 2, 3 },
 	},
@@ -227,7 +229,7 @@ local configured_monitors = {
 		mode = "3440x1440@180.08Hz",
 		position = "1920x0",
 		scale = 1,
-		workspaces = { 1, 2, 3 },
+		workspaces = { 4, 5, 6, 7, 8, 9, 10 },
 	},
 }
 
@@ -623,8 +625,8 @@ bind("SUPER + SHIFT + C", "Open VS Code in the focused terminal's directory", hl
 bind("SUPER + Return", "Open terminal in current directory", open_terminal)
 bind("SUPER + CTRL + Return", "Open a floating terminal", open_floating_terminal)
 bind("SUPER + W", "Close the focused window", hl.dsp.window.close())
-bind("SUPER + Q", "Minimise the focused window", minimise_window)
-bind("SUPER + SHIFT + Q", "Restore the most recently minimised window", unminimise_window)
+-- bind("SUPER + Q", "Minimise the focused window", minimise_window)
+-- bind("SUPER + SHIFT + Q", "Restore the most recently minimised window", unminimise_window)
 bind("SUPER + J","Toggle the next split direction", hl.dsp.layout("togglesplit"))
 bind("SUPER + T", "Toggle a centered floating window", toggle_centered_floating(1300, 800))
 bind("SUPER + SHIFT + T", "Toggle a centered 1080p floating window", toggle_centered_floating(1920, 1080))
